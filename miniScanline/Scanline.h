@@ -2,10 +2,14 @@
 #include <vector>
 #include <list>
 #include <algorithm>
+#include <opencv2/opencv.hpp>
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm.hpp>
 #include <gtc/matrix_transform.hpp>
 #include "Scene.h"
+
+using namespace std;
+using namespace cv;
 
 namespace SL {
 	const float EPS = 10e-6;
@@ -20,10 +24,6 @@ namespace SL {
 		Index			id;
 	public:
 		Edge(Index _id, glm::vec3 v1, glm::vec3 v2) :
-			Edge(v1, v2, _id) {}
-
-	private:
-		Edge(glm::vec3 v1, glm::vec3 v2, Index _id) :
 			id(_id) {
 			x = v1.x;
 			dx = -(v1.x - v2.x) / (v1.y - v2.y);
@@ -92,12 +92,14 @@ namespace SL {
 	public:
 		Scanline() {}
 		~Scanline() {}
-		void init(); // ≥ı ºªØ£ø
+		void setSize(int h, int w);
 		void render(const Scene& scene);
 	private:
 		void initTable(const Scene& scene);
 		void updateAET(Index y);
 
+	public:
+		Mat frame;
 	private:
 		int windowHeight;
 		int windowWeight;

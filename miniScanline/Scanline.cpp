@@ -1,7 +1,15 @@
 #include "Scanline.h"
 
+void SL::Scanline::setSize(int h, int w)
+{
+	windowHeight = h;
+	windowWeight = w;
+}
+
 void SL::Scanline::render(const Scene & scene)
 {
+	Mat currFrame = Mat::zeros(windowHeight, windowWeight, CV_8UC3);
+	//TODO: 背景色
 	initTable(scene);
 	for (Index y = windowHeight; y >= 0; y--) {
 		// 清空IPL
@@ -11,11 +19,12 @@ void SL::Scanline::render(const Scene & scene)
 
 		if (AET.size() == 0)
 			continue;
-		assert(AET.size() % 2 == 0);// assert怎么用？
+		assert(AET.size() % 2 == 0); // ...
 
 		// 活化边表排序
 		sort(AET.begin(), AET.end(), ActiveEdge::sortCompare);
 		
+		Mat currFrameRow = currFrame.row(y);
 		list<ActiveEdge>::iterator ae;
 		list<ActiveEdge>::iterator ae2;
 		for (ae = AET.begin(); ae != AET.end(); ++ae) {
@@ -61,9 +70,12 @@ void SL::Scanline::render(const Scene & scene)
 			}
 			// 记录颜色
 			if (polygonID >= 0) {
-				// TODO:记录颜色
+				glm::vec3 color = scene.fList[polygonID].color;
+				cv::Scalar rgb(color.b, color.g, color.r);
+				currFrameRow(Range::all(), Range(round(ae->x), round(ae2->x))) = rgb;
 			}
 		}
+
 	}
 }
 
