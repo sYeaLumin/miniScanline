@@ -30,7 +30,7 @@ void Render::shader(Scene& scene) {
 	// 外界颜色
 	glm::vec3 ambient_color = glm::vec3(0.3, 0.3, 0.3);
 	// 光源
-	glm::vec3 light_position = glm::vec3(400.0f, 600.0f, 500.0f);
+	glm::vec3 light_position = glm::vec3(400.0f, 400.0f, 1000.0f);
 	int face_num = scene.fList.size();
 
 	// 遍历面
