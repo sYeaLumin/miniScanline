@@ -2,14 +2,14 @@
 #include <vector>
 #include <list>
 #include <algorithm>
-#include <opencv2/opencv.hpp>
+//#include <opencv2/opencv.hpp>
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm.hpp>
 #include <gtc/matrix_transform.hpp>
 #include "Scene.h"
 
 using namespace std;
-using namespace cv;
+//using namespace cv;
 
 namespace SL {
 	const float EPS = 10e-6;
@@ -50,7 +50,8 @@ namespace SL {
 				return -(a*x + b*y + d) / c;
 			}
 			else
-				return FLT_MAX; // 左手坐标系
+				//return FLT_MAX; // 左手坐标系
+				return FLT_MIN; // 右手坐标系
 		}
 	};
 
@@ -75,11 +76,11 @@ namespace SL {
 				zdy = ap.b / ap.c;
 			}
 		}
-		static bool sortCompare(const ActiveEdge& ae1, const ActiveEdge& ae2) {
-			if (round(ae1.x) < round(ae2.x))
+		bool operator<(const ActiveEdge& ae) {
+			if (round(x) < round(ae.x))
 				return true;
-			else if (round(ae1.x) == round(ae2.x)) {
-				if (round(ae1.z) < round(ae2.z))
+			else if (round(x) == round(ae.x)) {
+				if (z < ae.z)
 					return true;
 			}
 			else
@@ -92,14 +93,16 @@ namespace SL {
 	public:
 		Scanline() {}
 		~Scanline() {}
-		void setSize(int h, int w);
+		void setSize(int w, int h);
+		void getSize(int& w, int& h);
 		void render(const Scene& scene);
 	private:
 		void initTable(const Scene& scene);
 		void updateAET(Index y);
 
 	public:
-		Mat frame;
+		//Mat frame;
+		vector<glm::vec3> buffer;
 	private:
 		int windowHeight;
 		int windowWeight;
@@ -107,6 +110,7 @@ namespace SL {
 		vector<list<Edge>>	ET;		// edge table
 		list<ActiveEdge>			AET;	// active edge table
 		list<Index>					IPL;		// active In-Polygon List
+		bool ifNeedUpdate = true;
 	};
 
 }

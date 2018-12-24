@@ -4,6 +4,7 @@
 #include <sstream>
 #include <vector>
 #include <string>
+#include <algorithm>
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm.hpp>
 #include <gtc/matrix_transform.hpp>
@@ -35,9 +36,11 @@ public:
 	Scene();
 	~Scene();
 	bool Load(string path);
+	void Resize(int width, int height);
 public:
 	vector<Vertex> vList;
 	vector<Face> fList;
 	vector<glm::vec3> vnList;
+	bool ifFNIdx = false;
 };
 

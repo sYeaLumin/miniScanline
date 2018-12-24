@@ -1,17 +1,27 @@
 #include "Scanline.h"
 
-void SL::Scanline::setSize(int h, int w)
+void SL::Scanline::setSize(int w, int h)
 {
 	windowHeight = h;
 	windowWeight = w;
 }
 
+void SL::Scanline::getSize(int & w, int & h)
+{
+	h = windowHeight;
+	w = windowWeight;
+}
+
 void SL::Scanline::render(const Scene & scene)
 {
-	Mat currFrame = Mat::zeros(windowHeight, windowWeight, CV_8UC3);
+	if (!ifNeedUpdate)return;
+	//Mat currFrame = Mat::zeros(windowHeight, windowWeight, CV_8UC3);
+	vector<glm::vec3> currBuffer;
+	currBuffer.resize(windowHeight*windowWeight);
 	//TODO: 背景色
 	initTable(scene);
-	for (Index y = windowHeight; y >= 0; y--) {
+	for (int y = windowHeight - 1; y >= 0; y--) {
+		cout << "y:" << y;
 		// 清空IPL
 		list<Index>().swap(IPL);
 		// 更新活化边表
@@ -22,9 +32,10 @@ void SL::Scanline::render(const Scene & scene)
 		assert(AET.size() % 2 == 0); // ...
 
 		// 活化边表排序
-		sort(AET.begin(), AET.end(), ActiveEdge::sortCompare);
+		//sort(AET.begin(), AET.end(), ActiveEdge::sortCompare);
+		AET.sort();
 		
-		Mat currFrameRow = currFrame.row(y);
+		//Mat currFrameRow = currFrame.row(y);
 		list<ActiveEdge>::iterator ae;
 		list<ActiveEdge>::iterator ae2;
 		for (ae = AET.begin(); ae != AET.end(); ++ae) {
@@ -50,9 +61,11 @@ void SL::Scanline::render(const Scene & scene)
 			if (round(ae->x) == round(ae2->x))
 				continue;
 
-			Index polygonID = -1;
+			int polygonID = -1;
 			float midX = (ae->x + ae2->x) / 2;
-			float minZ = FLT_MAX; // 世界坐标系是右手坐标系，NDC坐标系是左手坐标系
+			// 世界坐标系是右手坐标系，NDC坐标系是左手坐标系
+			//float minZ = FLT_MAX; 
+			float maxZ = FLT_MIN;
 			float curZ;
 			if (IPL.size() == 0)
 				continue;
@@ -62,26 +75,36 @@ void SL::Scanline::render(const Scene & scene)
 				for (const auto &id : IPL) {
 					Polygon & AIP = PT[id];
 					curZ = AIP.z(midX, y);
+					if (maxZ < curZ) {
+						maxZ = curZ;
+						polygonID = AIP.id;
+					}
+					/*
 					if (minZ > curZ) {
 						minZ = curZ;
 						polygonID = AIP.id;
-					}
+					}*/
 				}
 			}
 			// 记录颜色
 			if (polygonID >= 0) {
 				glm::vec3 color = scene.fList[polygonID].color;
-				cv::Scalar rgb(color.b, color.g, color.r);
-				currFrameRow(Range::all(), Range(round(ae->x), round(ae2->x))) = rgb;
+				//cv::Scalar rgb(color.b, color.g, color.r);
+				//currFrameRow(Range::all(), Range(round(ae->x), round(ae2->x))) = rgb;
+				for (size_t x = round(ae->x), end = round(ae2->x); x < end; ++x)
+					currBuffer[y*windowWeight + x] = color;
 			}
 		}
-
 	}
+	//swap(currFrame, frame);
+	swap(currBuffer, buffer);
+	ifNeedUpdate = false;
 }
 
 void SL::Scanline::initTable(const Scene & scene)
 {
 	Index ID = 0;
+	ET.resize(windowHeight);
 	for (const auto &f : scene.fList) {
 		float minY = FLT_MAX;
 		float maxY = FLT_MIN;
@@ -101,9 +124,16 @@ void SL::Scanline::initTable(const Scene & scene)
 			minY = min(minY, v2.y);
 			maxY = max(maxY, v1.y);
 		}
-		PT.push_back(
-			Polygon(ID, round(maxY) - round(minY), scene.vList[f.vIdx[0]].p, f.normal)
-		);
+		if (scene.ifFNIdx) {
+			glm::vec3 normal = scene.vnList[f.nIdx[0]];
+			PT.push_back(
+				Polygon(ID, round(maxY) - round(minY), scene.vList[f.vIdx[0]].p, normal)
+			);
+		}
+		else
+			PT.push_back(
+				Polygon(ID, round(maxY) - round(minY), scene.vList[f.vIdx[0]].p, f.normal)
+			);
 		ID++;
 	}
 }
