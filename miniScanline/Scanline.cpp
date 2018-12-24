@@ -21,7 +21,7 @@ void SL::Scanline::render(const Scene & scene)
 	//TODO: 背景色
 	initTable(scene);
 	for (int y = windowHeight - 1; y >= 0; y--) {
-		cout << "y:" << y;
+		//cout << "y:" << y;
 		// 清空IPL
 		list<Index>().swap(IPL);
 		// 更新活化边表
@@ -65,7 +65,7 @@ void SL::Scanline::render(const Scene & scene)
 			float midX = (ae->x + ae2->x) / 2;
 			// 世界坐标系是右手坐标系，NDC坐标系是左手坐标系
 			//float minZ = FLT_MAX; 
-			float maxZ = FLT_MIN;
+			float maxZ = -FLT_MAX;
 			float curZ;
 			if (IPL.size() == 0)
 				continue;
@@ -150,6 +150,7 @@ void SL::Scanline::updateAET(Index y)
 			else {
 				aeIter->x += aeIter->dx;
 				aeIter->z += aeIter->zdx*aeIter->dx + aeIter->zdy;
+				aeIter->dy--;
 				aeIter++;
 			}
 		}

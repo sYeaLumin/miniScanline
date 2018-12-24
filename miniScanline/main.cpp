@@ -10,7 +10,7 @@ int main()
 	//窗口大小
 	int width = 400, height = 300;	
 	// 读取模型
-	string  fileName = "tri0.obj";
+	string  fileName = "tri1.obj";
 	Scene scene;
 	scene.Load(fileName);
 	scene.Resize(width, height);

@@ -51,7 +51,7 @@ namespace SL {
 			}
 			else
 				//return FLT_MAX; // 左手坐标系
-				return FLT_MIN; // 右手坐标系
+				return -FLT_MAX; // 右手坐标系
 		}
 	};
 
@@ -77,12 +77,14 @@ namespace SL {
 			}
 		}
 		bool operator<(const ActiveEdge& ae) {
-			if (round(x) < round(ae.x))
-				return true;
-			else if (round(x) == round(ae.x)) {
+			if (fabs(x - ae.x) < EPS) {
 				if (z < ae.z)
 					return true;
+				else
+					return false;
 			}
+			else if (x < ae.x)
+				return true;
 			else
 				return false;
 		}

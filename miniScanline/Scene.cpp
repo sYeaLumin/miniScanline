@@ -41,7 +41,7 @@ bool Scene::Load(string path)
 			string fMes;
 			while (mes >> fMes)
 			{
-				cout << "fMes : " << fMes << endl;
+				//cout << "fMes : " << fMes << endl;
 				if (fMes.find_first_of("/") == string::npos) {
 					f.vIdx.push_back(atoi(fMes.c_str()));
 				}
@@ -54,7 +54,7 @@ bool Scene::Load(string path)
 				}
 			}
 			fList.push_back(f);
-			cout << endl;
+			//cout << endl;
 		}
 	}
 	objFile.close();
