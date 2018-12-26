@@ -3,6 +3,7 @@
 #include "Scanline.h"
 #include "Render.h"
 #include <ctime>
+
 using namespace std;
 using namespace SL;
 int main()

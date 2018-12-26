@@ -20,6 +20,11 @@ void SL::Scanline::render(const Scene & scene)
 	currBuffer.resize(windowHeight*windowWeight);
 	//TODO: 背景色
 	initTable(scene);
+
+#ifdef MINISCANLINE_DEBUG
+	printET();
+#endif // MINISCANLINE_DEBUG
+
 	for (int y = windowHeight - 1; y >= 0; y--) {
 		//cout << "y:" << y;
 		// 清空IPL
@@ -29,11 +34,24 @@ void SL::Scanline::render(const Scene & scene)
 
 		if (AET.size() == 0)
 			continue;
-		assert(AET.size() % 2 == 0); // ...
+		assert(AET.size() % 2 == 0);
+
+#ifdef MINISCANLINE_DEBUG
+		if (y == 182 || y == 181) {
+			cout << "y" << y << ": ";
+			printAET();
+		}
+#endif // MINISCANLINE_DEBUG
 
 		// 活化边表排序
-		//sort(AET.begin(), AET.end(), ActiveEdge::sortCompare);
 		AET.sort();
+
+#ifdef MINISCANLINE_DEBUG
+		if (y == 182 || y == 181) {
+			cout << "y" << y << ": ";
+			printAET();
+		}
+#endif // MINISCANLINE_DEBUG
 		
 		//Mat currFrameRow = currFrame.row(y);
 		list<ActiveEdge>::iterator ae;
@@ -160,4 +178,27 @@ void SL::Scanline::updateAET(Index y)
 	// 添加新的边
 	for (const auto &e : ET[y])
 		AET.push_back(ActiveEdge(y, e, PT[e.id]));
+}
+
+void SL::Scanline::printET()
+{
+	for (int y = windowHeight - 1; y >= 0; y--) {
+		if (ET[y].size() == 0)
+			continue;
+		else {
+			cout << "ET" << y << "\t:" << ET[y].size() << "\t:";
+			for (const auto &e : ET[y]) {
+				cout << e.id << " ";
+			}
+			cout << endl;
+		}
+	}
+}
+
+void SL::Scanline::printAET()
+{
+	for (const auto &ae : AET) {
+		cout << ae.id << " " << PT[ae.id].inFlag << " ";
+	}
+	cout << endl;
 }

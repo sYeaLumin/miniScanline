@@ -7,7 +7,7 @@
 #include <glm.hpp>
 #include <gtc/matrix_transform.hpp>
 #include "Scene.h"
-
+#define MINISCANLINE_DEBUG
 using namespace std;
 //using namespace cv;
 
@@ -101,6 +101,9 @@ namespace SL {
 	private:
 		void initTable(const Scene& scene);
 		void updateAET(Index y);
+		/************* Function for debug ***********/
+		void printET();
+		void printAET();
 
 	public:
 		//Mat frame;
