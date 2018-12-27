@@ -11,7 +11,6 @@ using namespace SL;
 class Render
 {
 public:
-	
 	Render(Scene* model, Scanline* slzBuffer);
 	~Render();
 	void display();
@@ -19,7 +18,6 @@ public:
 	static Scene* scene;
 	static Scanline* engine;
 	static glm::mat4 RotateMat;
-	static int idx1, idx2;
 
 	// 生成模型的颜色
 	//const float kd = 0.8;//albedo ,散射反照率
@@ -28,6 +26,7 @@ public:
 	static void loop();
 	static void reshape(int w, int h);
 	static void keyboard(int key, int x, int y);
+	static void mouse(int button, int state, int x, int y);
 };
 
 

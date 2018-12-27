@@ -6,9 +6,6 @@ Scanline* Render::engine = NULL;
 Scene* Render::scene = NULL;
 glm::mat4 Render::RotateMat = glm::mat4();
 
-int Render::idx1 = -1, Render::idx2 = -1;
-
-
 Render::Render(Scene* scene, Scanline* slzBuffer)
 {
 	this->scene = scene;
@@ -114,12 +111,27 @@ void Render::display()
 	glutDisplayFunc(loop);
 	glutReshapeFunc(reshape);
 	glutSpecialFunc(keyboard);
+	glutMouseFunc(mouse);
 
 	glutMainLoop();
 }
 
-
 void Render::keyboard(int key, int x, int y)
 {
+}
+
+void Render::mouse(int button, int state, int x, int y)
+{
+	int width = 0, height = 0;
+	engine->getSize(width, height);
+	if (button == GLUT_LEFT_BUTTON) {
+		switch (state) {
+		case GLUT_DOWN:
+			cout << "x:" << x << " y:" << (height - y) << endl;
+			break;
+		case GLUT_UP:
+			break;
+		}
+	}
 }
 

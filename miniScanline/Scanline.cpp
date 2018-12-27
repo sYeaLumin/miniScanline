@@ -34,19 +34,22 @@ void SL::Scanline::render(const Scene & scene)
 
 		if (AET.size() == 0)
 			continue;
+
 #ifdef MINISCANLINE_DEBUG
 		assert(AET.size() % 2 == 0);
-		cout << y << "\t";
-		printInFlag();
-		/*
-		if (y >= 262 && y <= 266) {
-			cout << y << "\t";
-			printAET();
-		}*/
+		//cout << y << "\t";
+		//printInFlag();
 #endif // MINISCANLINE_DEBUG
 
 		// 活化边表排序
 		AET.sort();
+
+#ifdef MINISCANLINE_DEBUG
+		if (y >= 296 && y <= 297) {
+			cout << y << "\t";
+			printAET();
+		}
+#endif // MINISCANLINE_DEBUG
 		
 		//Mat currFrameRow = currFrame.row(y);
 		list<ActiveEdge>::iterator ae;
@@ -172,7 +175,8 @@ void SL::Scanline::updateAET(Index y)
 		return;
 	// 添加新的边
 	for (const auto &e : ET[y])
-		AET.push_back(ActiveEdge(y, e, PT[e.id]));
+		if (fabs(PT[e.id].c) > EPS)
+			AET.push_back(ActiveEdge(y, e, PT[e.id]));
 }
 
 void SL::Scanline::printET()
@@ -181,6 +185,8 @@ void SL::Scanline::printET()
 		if (ET[y].size() == 0)
 			continue;
 		else {
+			if (y < 296 || y > 305)
+				continue;
 			cout << "ET" << y << "\t:" << ET[y].size() << "\t:";
 			for (const auto &e : ET[y]) {
 				cout << e.id << "y" << e.dy << " ";
