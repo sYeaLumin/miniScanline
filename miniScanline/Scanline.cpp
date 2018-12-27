@@ -36,6 +36,13 @@ void SL::Scanline::render(const Scene & scene)
 			continue;
 #ifdef MINISCANLINE_DEBUG
 		assert(AET.size() % 2 == 0);
+		cout << y << "\t";
+		printInFlag();
+		/*
+		if (y >= 262 && y <= 266) {
+			cout << y << "\t";
+			printAET();
+		}*/
 #endif // MINISCANLINE_DEBUG
 
 		// »î»¯±ß±íÅÅÐò
@@ -122,7 +129,7 @@ void SL::Scanline::initTable(const Scene & scene)
 
 			if (v1.y < 0 || v2.y>windowHeight)
 				continue;
-			if ((v1.y - v2.y) <= 0.5)
+			if (round(v1.y) == round(v2.y))
 				continue;
 
 			ET[round(v1.y)].push_back(Edge(ID, v1, v2));
@@ -176,7 +183,7 @@ void SL::Scanline::printET()
 		else {
 			cout << "ET" << y << "\t:" << ET[y].size() << "\t:";
 			for (const auto &e : ET[y]) {
-				cout << e.id << "Y" << e.dy << " ";
+				cout << e.id << "y" << e.dy << " ";
 			}
 			cout << endl;
 		}
@@ -186,7 +193,15 @@ void SL::Scanline::printET()
 void SL::Scanline::printAET()
 {
 	for (const auto &ae : AET) {
-		cout << ae.id << (PT[ae.id].inFlag ? "T" : "F") << ae.dy << " ";
+		cout << ae.id << (PT[ae.id].inFlag ? "+" : "-") << ae.dy << " ";
+	}
+	cout << endl;
+}
+
+void SL::Scanline::printInFlag()
+{
+	for (const auto &ae : AET) {
+		cout <<(PT[ae.id].inFlag ? "+" : "-")  << " ";
 	}
 	cout << endl;
 }
