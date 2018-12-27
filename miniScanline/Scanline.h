@@ -7,7 +7,7 @@
 #include <glm.hpp>
 #include <gtc/matrix_transform.hpp>
 #include "Scene.h"
-#define MINISCANLINE_DEBUG
+#define MINISCANLINE_DEBUG//
 using namespace std;
 //using namespace cv;
 
@@ -27,7 +27,7 @@ namespace SL {
 			id(_id) {
 			x = v1.x;
 			dx = -(v1.x - v2.x) / (v1.y - v2.y);
-			dy = round(v1.y - v2.y);
+			dy = round(v1.y) - round(v2.y); // can not use round(v1.y-v2.y)
 		}
 	};
 
@@ -104,6 +104,7 @@ namespace SL {
 		/************* Function for debug ***********/
 		void printET();
 		void printAET();
+		void printInFlag();
 
 	public:
 		//Mat frame;

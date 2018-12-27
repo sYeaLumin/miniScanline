@@ -34,24 +34,12 @@ void SL::Scanline::render(const Scene & scene)
 
 		if (AET.size() == 0)
 			continue;
-		assert(AET.size() % 2 == 0);
-
 #ifdef MINISCANLINE_DEBUG
-		if (y == 182 || y == 181) {
-			cout << "y" << y << ": ";
-			printAET();
-		}
+		assert(AET.size() % 2 == 0);
 #endif // MINISCANLINE_DEBUG
 
 		// »î»¯±ß±íÅÅÐò
 		AET.sort();
-
-#ifdef MINISCANLINE_DEBUG
-		if (y == 182 || y == 181) {
-			cout << "y" << y << ": ";
-			printAET();
-		}
-#endif // MINISCANLINE_DEBUG
 		
 		//Mat currFrameRow = currFrame.row(y);
 		list<ActiveEdge>::iterator ae;
@@ -188,7 +176,7 @@ void SL::Scanline::printET()
 		else {
 			cout << "ET" << y << "\t:" << ET[y].size() << "\t:";
 			for (const auto &e : ET[y]) {
-				cout << e.id << " ";
+				cout << e.id << "Y" << e.dy << " ";
 			}
 			cout << endl;
 		}
@@ -198,7 +186,7 @@ void SL::Scanline::printET()
 void SL::Scanline::printAET()
 {
 	for (const auto &ae : AET) {
-		cout << ae.id << " " << PT[ae.id].inFlag << " ";
+		cout << ae.id << (PT[ae.id].inFlag ? "T" : "F") << ae.dy << " ";
 	}
 	cout << endl;
 }

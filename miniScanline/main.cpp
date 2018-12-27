@@ -11,7 +11,7 @@ int main()
 	//窗口大小
 	int width = 400, height = 300;	
 	// 读取模型
-	string  fileName = "test.obj";
+	string  fileName = "obj//ball0.obj";
 	Scene scene;
 	scene.Load(fileName);
 	scene.Resize(width, height);
