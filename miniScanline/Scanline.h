@@ -7,7 +7,7 @@
 #include <glm.hpp>
 #include <gtc/matrix_transform.hpp>
 #include "Scene.h"
-//#define MINISCANLINE_DEBUG
+#define MINISCANLINE_DEBUG//
 using namespace std;
 //using namespace cv;
 
@@ -110,6 +110,7 @@ namespace SL {
 
 	public:
 		//Mat frame;
+		bool ifNeedUpdate = true;
 		vector<glm::vec3> buffer;
 		vector<Index> idBuffer; // for debug
 	private:
@@ -119,7 +120,6 @@ namespace SL {
 		vector<list<Edge>>	ET;		// edge table
 		list<ActiveEdge>			AET;	// active edge table
 		list<Index>					IPL;		// active In-Polygon List
-		bool ifNeedUpdate = true;
 	};
 
 }

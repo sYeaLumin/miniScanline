@@ -20,15 +20,10 @@ void SL::Scanline::render(const Scene & scene)
 	vector<Index> currIDBuffer;
 	currIDBuffer.resize(windowHeight*windowWeight);
 #endif // MINISCANLINE_DEBUG
+	
 	vector<glm::vec3> currBuffer;
 	currBuffer.resize(windowHeight*windowWeight);
-	//TODO: ±³¾°É«
 	initTable(scene);
-
-#ifdef MINISCANLINE_DEBUG
-	printET();
-	//traceET(189);
-#endif // MINISCANLINE_DEBUG
 
 	for (int y = windowHeight - 1; y >= 0; y--) {
 		//cout << "y:" << y;
@@ -91,18 +86,11 @@ void SL::Scanline::render(const Scene & scene)
 						maxZ = curZ;
 						polygonID = AIP.id;
 					}
-					/*
-					if (minZ > curZ) {
-						minZ = curZ;
-						polygonID = AIP.id;
-					}*/
 				}
 			}
 			// ¼ÇÂ¼ÑÕÉ«
 			if (polygonID >= 0) {
 				glm::vec3 color = scene.fList[polygonID].color;
-				//cv::Scalar rgb(color.b, color.g, color.r);
-				//currFrameRow(Range::all(), Range(round(ae->x), round(ae2->x))) = rgb;
 				for (size_t x = round(ae->x), end = round(ae2->x); x < end; ++x) {
 					currBuffer[y*windowWeight + x] = color;
 #ifdef MINISCANLINE_DEBUG
@@ -112,18 +100,23 @@ void SL::Scanline::render(const Scene & scene)
 			}
 		}
 	}
-	//swap(currFrame, frame);
+
 	swap(currBuffer, buffer);
 #ifdef MINISCANLINE_DEBUG
 	swap(currIDBuffer, idBuffer);
 #endif // MINISCANLINE_DEBUG
+
+	AET.clear();
+
 	ifNeedUpdate = false;
 }
 
 void SL::Scanline::initTable(const Scene & scene)
 {
+	vector<Polygon>		currPT;
+	vector<list<Edge>>	currET;
 	Index ID = 0;
-	ET.resize(windowHeight);
+	currET.resize(windowHeight);
 	for (const auto &f : scene.fList) {
 		float minY = FLT_MAX;
 		float maxY = FLT_MIN;
@@ -138,7 +131,7 @@ void SL::Scanline::initTable(const Scene & scene)
 			if (round(v1.y) == round(v2.y))
 				continue;
 
-			ET[round(v1.y)].push_back(Edge(ID, v1, v2));
+			currET[round(v1.y)].push_back(Edge(ID, v1, v2));
 
 			minY = min(minY, v2.y);
 			maxY = max(maxY, v1.y);
@@ -153,11 +146,13 @@ void SL::Scanline::initTable(const Scene & scene)
 		assert((dy == 0 && fabs(normal.z) < EPS) ||
 			(dy > 0 && fabs(normal.z) > EPS));
 #endif // MINISCANLINE_DEBUG
-		PT.push_back(
+		currPT.push_back(
 			Polygon(ID, dy, scene.vList[f.vIdx[0]].p, normal)
 		);
 		ID++;
 	}
+	swap(currET, ET);
+	swap(currPT, PT);
 }
 
 void SL::Scanline::updateAET(Index y)

@@ -4,7 +4,7 @@ using namespace std;
 
 Scanline* Render::engine = NULL;
 Scene* Render::scene = NULL;
-glm::mat4 Render::RotateMat = glm::mat4();
+float Render::rotateAngle = 0;
 
 Render::Render(Scene* scene, Scanline* slzBuffer)
 {
@@ -13,7 +13,6 @@ Render::Render(Scene* scene, Scanline* slzBuffer)
 	// 确定各点的颜色
 	//shader(*scene);
 
-	RotateMat = glm::mat4();
 }
 
 Render::~Render()
@@ -118,6 +117,28 @@ void Render::display()
 
 void Render::keyboard(int key, int x, int y)
 {
+	int width = 0, height = 0;
+	engine->getSize(width, height);
+	switch (key)
+	{
+	case GLUT_KEY_LEFT:
+		rotateAngle -= 10;
+		scene->Rotate(glm::vec3(0.0f, 1.0f, 0.0f), rotateAngle);
+		scene->Resize(width, height);
+		cout << "rotateAngle: " << rotateAngle << endl;
+		break;
+	case GLUT_KEY_RIGHT:
+		rotateAngle += 10;
+		scene->Rotate(glm::vec3(0.0f, 1.0f, 0.0f), rotateAngle);
+		scene->Resize(width, height);
+		cout << "rotateAngle: " << rotateAngle << endl;
+		break;
+	default:
+		break;
+	}
+	engine->ifNeedUpdate = true;
+	engine->render(*scene);
+	glutPostRedisplay();
 }
 
 void Render::mouse(int button, int state, int x, int y)
@@ -129,7 +150,7 @@ void Render::mouse(int button, int state, int x, int y)
 		switch (state) {
 		case GLUT_DOWN:
 			cout << "x:" << x << " y:" << (height - y);
-			id = engine->idBuffer[(height - y)*width + x];
+			/**/id = engine->idBuffer[(height - y)*width + x];
 			cout << " ID:" << id;
 			for (const auto &vi : scene->fList[id].vIdx) {
 				cout << " " << vi;

@@ -17,7 +17,7 @@ public:
 
 	static Scene* scene;
 	static Scanline* engine;
-	static glm::mat4 RotateMat;
+	static float rotateAngle;
 
 	// 生成模型的颜色
 	//const float kd = 0.8;//albedo ,散射反照率

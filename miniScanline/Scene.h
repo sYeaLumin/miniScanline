@@ -8,6 +8,8 @@
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm.hpp>
 #include <gtc/matrix_transform.hpp>
+#include <gtx/quaternion.hpp>
+#include <gtx/vector_angle.hpp>
 
 using namespace std;
 typedef size_t Index;
@@ -37,6 +39,7 @@ public:
 	~Scene();
 	bool Load(string path);
 	void Resize(int width, int height);
+	void Rotate(glm::vec3 axis, float angle);
 public:
 	vector<Vertex> vList;
 	vector<Face> fList;

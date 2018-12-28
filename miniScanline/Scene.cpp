@@ -100,12 +100,32 @@ void Scene::Resize(int width, int height)
 
 	for (int i = 0; i < vertex_num; ++i)
 	{
-		glm::vec3& vNew = this->vList[i].p;
-		glm::vec3& vOld = this->vList[i].pOri;
+		glm::vec3& pos = this->vList[i].p;
+		//glm::vec3& vOld = this->vList[i].pOri;
 		//放置到窗口中间
-		vNew.x = (vOld.x - center_xyz.x)*scale + width / 2;
-		vNew.y = (vOld.y - center_xyz.y)*scale + height / 2;
-		vNew.z = (vOld.z - center_xyz.z)*scale;
+		pos.x = (pos.x - center_xyz.x)*scale + width / 2;
+		pos.y = (pos.y - center_xyz.y)*scale + height / 2;
+		pos.z = (pos.z - center_xyz.z)*scale;
+	}
+}
 
+void Scene::Rotate(glm::vec3 axis, float angle)
+{
+	glm::vec3 rotateAxis = glm::normalize(axis);
+	float radians = glm::radians(angle);
+	glm::quat rotateQuat = glm::angleAxis(radians, rotateAxis);
+	glm::mat4 rotateMat = glm::toMat4(rotateQuat);
+	for (auto &v : vList) {
+		v.p = rotateMat * glm::vec4(v.pOri, 1.0f);
+	}
+	if (ifFNIdx) {
+		for (auto &vn : vnList) {
+			vn = glm::mat3(rotateMat) * vn;
+		}
+	}
+	else {
+		for (auto &f : fList) {
+			f.normal = glm::mat3(rotateMat) * f.normal;
+		}
 	}
 }
