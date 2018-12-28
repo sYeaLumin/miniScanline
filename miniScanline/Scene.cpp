@@ -43,7 +43,7 @@ bool Scene::Load(string path)
 			{
 				//cout << "fMes : " << fMes << endl;
 				if (fMes.find_first_of("/") == string::npos) {
-					f.vIdx.push_back(atoi(fMes.c_str()));
+					f.vIdx.push_back(atoi(fMes.c_str()) - 1);
 				}
 				else {
 					size_t idx1 = fMes.find_first_of("/");

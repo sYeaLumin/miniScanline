@@ -16,6 +16,10 @@ void SL::Scanline::render(const Scene & scene)
 {
 	if (!ifNeedUpdate)return;
 	//Mat currFrame = Mat::zeros(windowHeight, windowWeight, CV_8UC3);
+#ifdef MINISCANLINE_DEBUG
+	vector<Index> currIDBuffer;
+	currIDBuffer.resize(windowHeight*windowWeight);
+#endif // MINISCANLINE_DEBUG
 	vector<glm::vec3> currBuffer;
 	currBuffer.resize(windowHeight*windowWeight);
 	//TODO: 背景色
@@ -23,6 +27,7 @@ void SL::Scanline::render(const Scene & scene)
 
 #ifdef MINISCANLINE_DEBUG
 	printET();
+	//traceET(189);
 #endif // MINISCANLINE_DEBUG
 
 	for (int y = windowHeight - 1; y >= 0; y--) {
@@ -37,19 +42,10 @@ void SL::Scanline::render(const Scene & scene)
 
 #ifdef MINISCANLINE_DEBUG
 		assert(AET.size() % 2 == 0);
-		//cout << y << "\t";
-		//printInFlag();
 #endif // MINISCANLINE_DEBUG
 
 		// 活化边表排序
 		AET.sort();
-
-#ifdef MINISCANLINE_DEBUG
-		if (y >= 296 && y <= 297) {
-			cout << y << "\t";
-			printAET();
-		}
-#endif // MINISCANLINE_DEBUG
 		
 		//Mat currFrameRow = currFrame.row(y);
 		list<ActiveEdge>::iterator ae;
@@ -107,13 +103,20 @@ void SL::Scanline::render(const Scene & scene)
 				glm::vec3 color = scene.fList[polygonID].color;
 				//cv::Scalar rgb(color.b, color.g, color.r);
 				//currFrameRow(Range::all(), Range(round(ae->x), round(ae2->x))) = rgb;
-				for (size_t x = round(ae->x), end = round(ae2->x); x < end; ++x)
+				for (size_t x = round(ae->x), end = round(ae2->x); x < end; ++x) {
 					currBuffer[y*windowWeight + x] = color;
+#ifdef MINISCANLINE_DEBUG
+					currIDBuffer[y*windowWeight + x] = polygonID;
+#endif // MINISCANLINE_DEBUG
+				}
 			}
 		}
 	}
 	//swap(currFrame, frame);
 	swap(currBuffer, buffer);
+#ifdef MINISCANLINE_DEBUG
+	swap(currIDBuffer, idBuffer);
+#endif // MINISCANLINE_DEBUG
 	ifNeedUpdate = false;
 }
 
@@ -140,16 +143,19 @@ void SL::Scanline::initTable(const Scene & scene)
 			minY = min(minY, v2.y);
 			maxY = max(maxY, v1.y);
 		}
-		if (scene.ifFNIdx) {
-			glm::vec3 normal = scene.vnList[f.nIdx[0]];
-			PT.push_back(
-				Polygon(ID, round(maxY) - round(minY), scene.vList[f.vIdx[0]].p, normal)
-			);
-		}
+		glm::vec3 normal;
+		if (scene.ifFNIdx) 
+			normal = scene.vnList[f.nIdx[0]];
 		else
-			PT.push_back(
-				Polygon(ID, round(maxY) - round(minY), scene.vList[f.vIdx[0]].p, f.normal)
-			);
+			normal = f.normal;
+		LineNum dy = round(maxY) - round(minY);
+#ifdef MINISCANLINE_DEBUG
+		assert((dy == 0 && fabs(normal.z) < EPS) ||
+			(dy > 0 && fabs(normal.z) > EPS));
+#endif // MINISCANLINE_DEBUG
+		PT.push_back(
+			Polygon(ID, dy, scene.vList[f.vIdx[0]].p, normal)
+		);
 		ID++;
 	}
 }
@@ -208,6 +214,35 @@ void SL::Scanline::printInFlag()
 {
 	for (const auto &ae : AET) {
 		cout <<(PT[ae.id].inFlag ? "+" : "-")  << " ";
+	}
+	cout << endl;
+}
+
+void SL::Scanline::traceET(Index id)
+{
+	for (int y = windowHeight - 1; y >= 0; y--) {
+		if (ET[y].size() == 0)
+			continue;
+		else {
+			cout << "ET" << y << "\t:" << ET[y].size() << "\t:";
+			for (const auto &e : ET[y]) {
+				if(e.id==id)
+					cout << e.id << "y" << e.dy << " ";
+			}
+			cout << endl;
+		}
+	}
+}
+
+void SL::Scanline::traceAET(Index id)
+{
+	size_t num = 0;
+	for (const auto &ae : AET) {
+		if (ae.id == id) {
+			cout << "No" << num << ".";
+			cout << ae.id << (PT[ae.id].inFlag ? "+" : "-") << ae.dy << " ";
+		}
+		num++;
 	}
 	cout << endl;
 }

@@ -7,7 +7,7 @@
 #include <glm.hpp>
 #include <gtc/matrix_transform.hpp>
 #include "Scene.h"
-#define MINISCANLINE_DEBUG//
+//#define MINISCANLINE_DEBUG
 using namespace std;
 //using namespace cv;
 
@@ -105,10 +105,13 @@ namespace SL {
 		void printET();
 		void printAET();
 		void printInFlag();
+		void traceET(Index id);
+		void traceAET(Index id);
 
 	public:
 		//Mat frame;
 		vector<glm::vec3> buffer;
+		vector<Index> idBuffer; // for debug
 	private:
 		int windowHeight;
 		int windowWeight;

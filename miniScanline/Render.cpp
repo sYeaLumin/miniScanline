@@ -124,10 +124,17 @@ void Render::mouse(int button, int state, int x, int y)
 {
 	int width = 0, height = 0;
 	engine->getSize(width, height);
+	size_t id;
 	if (button == GLUT_LEFT_BUTTON) {
 		switch (state) {
 		case GLUT_DOWN:
-			cout << "x:" << x << " y:" << (height - y) << endl;
+			cout << "x:" << x << " y:" << (height - y);
+			id = engine->idBuffer[(height - y)*width + x];
+			cout << " ID:" << id;
+			for (const auto &vi : scene->fList[id].vIdx) {
+				cout << " " << vi;
+			}
+			cout << endl;
 			break;
 		case GLUT_UP:
 			break;
