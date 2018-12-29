@@ -38,6 +38,7 @@ public:
 	Scene();
 	~Scene();
 	bool Load(string path);
+	void BBox();
 	void Resize(int width, int height);
 	void Rotate(glm::vec3 axis, float angle);
 public:
@@ -45,5 +46,6 @@ public:
 	vector<Face> fList;
 	vector<glm::vec3> vnList;
 	bool ifFNIdx = false;
+	glm::vec3 minCoord, maxCoord;
 };
 

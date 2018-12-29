@@ -4,6 +4,7 @@ void SL::Scanline::setSize(int w, int h)
 {
 	windowHeight = h;
 	windowWeight = w;
+	viewport = glm::vec4(0.0f, 0.0f, w, h);
 }
 
 void SL::Scanline::getSize(int & w, int & h)
@@ -178,6 +179,37 @@ void SL::Scanline::updateAET(Index y)
 	for (const auto &e : ET[y])
 		if (fabs(PT[e.id].c) > EPS)
 			AET.push_back(ActiveEdge(y, e, PT[e.id]));
+}
+
+void SL::Scanline::initProject(const Scene & scene)
+{
+	float fov = glm::radians(45.0f);
+	float radius = glm::length(scene.maxCoord - scene.minCoord);
+	float zNear = 0.2 * radius / glm::sin(0.5*fov);
+	float zFar = 10 * (zNear + 2.0*radius);
+	float dis = zNear + radius;
+	glm::vec3 center = (scene.maxCoord + scene.minCoord) / 2.0f;
+	glm::vec3 eye = center + glm::vec3(0.0f, 0.0f, 1.0f)*dis;
+	viewMat = glm::lookAt(eye, center, glm::vec3(0.0f, 1.0f, 0.0f));
+	persMat = glm::perspective(fov,
+		(float)windowWeight / (float)windowHeight, zNear, zFar);
+	projMat = persMat*viewMat;
+}
+
+void SL::Scanline::project(Scene & scene)
+{
+	modelMat = getRotateMat(glm::vec3(0.0f, 1.0f, 0.0f), 45);
+	for (auto &v : scene.vList) {
+		v.p = glm::project(v.pOri, modelMat, projMat, viewport);
+	}
+}
+
+glm::mat4 SL::Scanline::getRotateMat(glm::vec3 axis, float angle)
+{
+	glm::vec3 rotateAxis = glm::normalize(axis);
+	float radians = glm::radians(angle);
+	glm::quat rotateQuat = glm::angleAxis(radians, rotateAxis);
+	return glm::toMat4(rotateQuat);
 }
 
 void SL::Scanline::printET()

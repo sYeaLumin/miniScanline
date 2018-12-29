@@ -101,6 +101,10 @@ namespace SL {
 	private:
 		void initTable(const Scene& scene);
 		void updateAET(Index y);
+		/************* Function for project ***********/
+		void initProject(const Scene& scene);
+		void project(Scene& scene);
+		glm::mat4 getRotateMat(glm::vec3 axis, float angle);
 		/************* Function for debug ***********/
 		void printET();
 		void printAET();
@@ -116,6 +120,11 @@ namespace SL {
 	private:
 		int windowHeight;
 		int windowWeight;
+		glm::mat4 modelMat;
+		glm::mat4 viewMat;
+		glm::mat4 persMat;
+		glm::mat4 projMat;
+		glm::vec4 viewport;
 		vector<Polygon>		PT;		// polygon table
 		vector<list<Edge>>	ET;		// edge table
 		list<ActiveEdge>			AET;	// active edge table

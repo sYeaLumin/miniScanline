@@ -69,6 +69,18 @@ bool Scene::Load(string path)
 	return true;
 }
 
+void Scene::BBox()
+{
+	glm::vec3 minP(0xfffffff, 0xfffffff, 0xfffffff);
+	glm::vec3 maxP(-0xfffffff, -0xfffffff, -0xfffffff);
+	for (const auto &v : vList) {
+		minP = min(minP, v.pOri);
+		maxP = max(maxP, v.pOri);
+	}
+	swap(minP, minCoord);
+	swap(maxP, maxCoord);
+}
+
 void Scene::Resize(int width, int height)
 {
 	glm::vec3 min_xyz(0xfffffff, 0xfffffff, 0xfffffff),
@@ -129,3 +141,4 @@ void Scene::Rotate(glm::vec3 axis, float angle)
 		}
 	}
 }
+

@@ -14,7 +14,7 @@ int main()
 	string  fileName = "obj//teapot0.obj";
 	Scene scene;
 	scene.Load(fileName);
-	scene.Rotate(glm::vec3(0.0f, 1.0f, 0.0f), 10);
+	scene.Rotate(glm::vec3(0.0f, 1.0f, 0.0f), 68);
 	scene.Resize(width, height);
 	Render::shader(scene);
 
