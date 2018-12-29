@@ -123,14 +123,12 @@ void Render::keyboard(int key, int x, int y)
 	{
 	case GLUT_KEY_LEFT:
 		rotateAngle -= 10;
-		scene->Rotate(glm::vec3(0.0f, 1.0f, 0.0f), rotateAngle);
-		scene->Resize(width, height);
+		engine->rotate(*scene, glm::vec3(0.0f, 1.0f, 0.0f), rotateAngle);
 		cout << "rotateAngle: " << rotateAngle << endl;
 		break;
 	case GLUT_KEY_RIGHT:
 		rotateAngle += 10;
-		scene->Rotate(glm::vec3(0.0f, 1.0f, 0.0f), rotateAngle);
-		scene->Resize(width, height);
+		engine->rotate(*scene, glm::vec3(0.0f, 1.0f, 0.0f), rotateAngle);
 		cout << "rotateAngle: " << rotateAngle << endl;
 		break;
 	default:

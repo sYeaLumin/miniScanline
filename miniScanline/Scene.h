@@ -39,6 +39,7 @@ public:
 	~Scene();
 	bool Load(string path);
 	void BBox();
+	void fitWindow(int width, int height);
 	void Resize(int width, int height);
 	void Rotate(glm::vec3 axis, float angle);
 public:

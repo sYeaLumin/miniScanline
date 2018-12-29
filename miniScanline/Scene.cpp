@@ -27,6 +27,7 @@ bool Scene::Load(string path)
 		if (type == "v") {
 			Vertex v;
 			mes >> v.pOri.x >> v.pOri.y >> v.pOri.z;
+			v.p = v.pOri;
 			vList.push_back(v);
 		}
 		else if (type == "vn") {
@@ -66,6 +67,7 @@ bool Scene::Load(string path)
 			f.normal = glm::normalize(glm::cross(v01, v12));
 		}
 	}
+	BBox();
 	return true;
 }
 
@@ -79,6 +81,24 @@ void Scene::BBox()
 	}
 	swap(minP, minCoord);
 	swap(maxP, maxCoord);
+}
+
+void Scene::fitWindow(int width, int height)
+{
+	glm::vec3 center = (minCoord + maxCoord) / 2.0f;
+
+	float model_width = maxCoord.x - minCoord.x;
+	float model_height = maxCoord.y - minCoord.y;
+	float max_model_len = max(model_width, model_height);
+	//将所有顶点放置到大小为(width,height)的窗口中
+
+	float scale = min(width, height) / max_model_len;
+	scale = 0.8*scale;
+	for (auto &v : vList) {
+		v.p.x = (v.p.x - center.x)*scale + width / 2;
+		v.p.y = (v.p.y - center.y)*scale + height / 2;
+		v.p.z = (v.p.z - center.z)*scale;
+	}
 }
 
 void Scene::Resize(int width, int height)

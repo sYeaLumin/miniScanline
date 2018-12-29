@@ -112,6 +112,21 @@ void SL::Scanline::render(const Scene & scene)
 	ifNeedUpdate = false;
 }
 
+void SL::Scanline::rotate(Scene & scene, glm::vec3 axis, float angle)
+{
+	modelMat = getRotateMat(axis, angle);
+	for (auto &v : scene.vList) {
+		v.p = modelMat * glm::vec4(v.pOri, 1.0f);
+	}
+	scene.fitWindow(windowWeight, windowHeight);
+	for (auto &f : scene.fList) {
+		glm::vec3 v01 = scene.vList[f.vIdx[1]].p - scene.vList[f.vIdx[0]].p;
+		glm::vec3 v12 = scene.vList[f.vIdx[2]].p - scene.vList[f.vIdx[1]].p;
+		f.normal = glm::normalize(glm::cross(v01, v12));
+	}
+	scene.ifFNIdx = false;
+}
+
 void SL::Scanline::initTable(const Scene & scene)
 {
 	vector<Polygon>		currPT;
@@ -181,7 +196,7 @@ void SL::Scanline::updateAET(Index y)
 			AET.push_back(ActiveEdge(y, e, PT[e.id]));
 }
 
-void SL::Scanline::initProject(const Scene & scene)
+void SL::Scanline::calVPMat(const Scene & scene)
 {
 	float fov = glm::radians(45.0f);
 	float radius = glm::length(scene.maxCoord - scene.minCoord);
@@ -200,7 +215,18 @@ void SL::Scanline::project(Scene & scene)
 {
 	modelMat = getRotateMat(glm::vec3(0.0f, 1.0f, 0.0f), 45);
 	for (auto &v : scene.vList) {
-		v.p = glm::project(v.pOri, modelMat, projMat, viewport);
+		v.p = modelMat * glm::vec4(v.pOri, 1.0f);
+	}
+	scene.fitWindow(windowWeight, windowHeight);
+	if (scene.ifFNIdx) {
+		for (auto &vn : scene.vnList) {
+			vn = glm::mat3(modelMat) * vn;
+		}
+	}
+	else {
+		for (auto &f : scene.fList) {
+			f.normal = glm::mat3(modelMat) * f.normal;
+		}
 	}
 }
 
