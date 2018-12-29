@@ -19,6 +19,7 @@ int main()
 
 	Scanline scanline;
 	scanline.setSize(width, height);
+	//scanline.initProj(scene);
 	scanline.render(scene);
 
 	Render render(&scene, &scanline);

@@ -98,6 +98,7 @@ namespace SL {
 		void setSize(int w, int h);
 		void getSize(int& w, int& h);
 		void render(const Scene& scene);
+		void initProj(Scene& scene);
 		void rotate(Scene& scene, glm::vec3 axis, float angle);
 	private:
 		void initTable(const Scene& scene);
@@ -125,7 +126,7 @@ namespace SL {
 		glm::mat4 viewMat;
 		glm::mat4 persMat;
 		glm::mat4 projMat;
-		glm::vec4 viewport;
+		//glm::vec4 viewport;
 		vector<Polygon>		PT;		// polygon table
 		vector<list<Edge>>	ET;		// edge table
 		list<ActiveEdge>			AET;	// active edge table

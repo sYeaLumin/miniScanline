@@ -4,7 +4,7 @@ void SL::Scanline::setSize(int w, int h)
 {
 	windowHeight = h;
 	windowWeight = w;
-	viewport = glm::vec4(0.0f, 0.0f, w, h);
+	//viewport = glm::vec4(0.0f, 0.0f, w, h);
 }
 
 void SL::Scanline::getSize(int & w, int & h)
@@ -112,6 +112,12 @@ void SL::Scanline::render(const Scene & scene)
 	ifNeedUpdate = false;
 }
 
+void SL::Scanline::initProj(Scene & scene)
+{
+	calVPMat(scene);
+	project(scene);
+}
+
 void SL::Scanline::rotate(Scene & scene, glm::vec3 axis, float angle)
 {
 	modelMat = getRotateMat(axis, angle);
@@ -214,8 +220,17 @@ void SL::Scanline::calVPMat(const Scene & scene)
 void SL::Scanline::project(Scene & scene)
 {
 	modelMat = getRotateMat(glm::vec3(0.0f, 1.0f, 0.0f), 45);
+	glm::mat4 mvpMat = persMat*viewMat*modelMat;
+	glm::mat4 viewPort = glm::mat4(1.0f);
+	viewPort[0][0] = windowWeight / 2.0f;
+	viewPort[0][3] = windowWeight / 2.0f;
+	viewPort[1][1] = windowHeight / 2.0f;
+	viewPort[1][3] = windowHeight / 2.0f;
+	glm::vec4 p;
 	for (auto &v : scene.vList) {
-		v.p = modelMat * glm::vec4(v.pOri, 1.0f);
+		p = mvpMat * glm::vec4(v.pOri, 1.0f);
+		p = p / p.w;
+		v.p = viewPort * p;
 	}
 	scene.fitWindow(windowWeight, windowHeight);
 	if (scene.ifFNIdx) {
