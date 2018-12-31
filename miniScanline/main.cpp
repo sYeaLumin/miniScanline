@@ -11,7 +11,7 @@ int main()
 	//窗口大小
 	int width = 800, height = 600;	
 	// 读取模型
-	string  fileName = "obj//teapot0.obj";
+	string  fileName = "obj//bunny.obj";
 	Scene scene;
 	scene.Load(fileName);
 	//scene.fitWindow(width, height);

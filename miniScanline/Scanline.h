@@ -7,7 +7,7 @@
 #include <glm.hpp>
 #include <gtc/matrix_transform.hpp>
 #include "Scene.h"
-//#define MINISCANLINE_DEBUG
+#define MINISCANLINE_DEBUG//
 using namespace std;
 //using namespace cv;
 
@@ -100,6 +100,7 @@ namespace SL {
 		void render(const Scene& scene);
 		void initProj(Scene& scene);
 		void rotate(Scene& scene, glm::vec3 axis, float angle);
+		void rotate2(Scene& scene, glm::vec3 axis, float angle);
 	private:
 		void initTable(const Scene& scene);
 		void updateAET(Index y);
@@ -124,7 +125,7 @@ namespace SL {
 		int windowWeight;
 		float zNear;
 		float zFar;
-		glm::mat4 modelMat;
+		glm::mat4 modelMat = glm::mat4(1.0f);
 		glm::mat4 viewMat;
 		glm::mat4 persMat;
 		glm::mat4 projMat;

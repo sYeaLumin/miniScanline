@@ -133,6 +133,12 @@ void SL::Scanline::rotate(Scene & scene, glm::vec3 axis, float angle)
 	scene.ifFNIdx = false;
 }
 
+void SL::Scanline::rotate2(Scene & scene, glm::vec3 axis, float angle)
+{
+	modelMat = getRotateMat(axis, angle);
+	project(scene);
+}
+
 void SL::Scanline::initTable(const Scene & scene)
 {
 	vector<Polygon>		currPT;
@@ -165,8 +171,8 @@ void SL::Scanline::initTable(const Scene & scene)
 			normal = f.normal;
 		LineNum dy = round(maxY) - round(minY);
 #ifdef MINISCANLINE_DEBUG
-		assert((dy == 0 && fabs(normal.z) < EPS) ||
-			(dy > 0 && fabs(normal.z) > EPS));
+		if (dy > 0) 
+			assert( fabs(normal.z) > EPS);
 #endif // MINISCANLINE_DEBUG
 		currPT.push_back(
 			Polygon(ID, dy, scene.vList[f.vIdx[0]].p, normal)
@@ -219,10 +225,10 @@ void SL::Scanline::calVPMat(const Scene & scene)
 
 void SL::Scanline::project(Scene & scene)
 {
-	modelMat = getRotateMat(glm::vec3(0.0f, 1.0f, 0.0f), 45);
+	//modelMat = getRotateMat(glm::vec3(0.0f, 1.0f, 0.0f), 45);
 	for (auto &v : scene.vList) {
 		v.p = glm::project(v.pOri, modelMat, projMat, viewport);
-		v.p.z = v.p.z*(zFar - zNear) + zNear;
+		v.p.z = -v.p.z*(zFar - zNear) - zNear;
 	}
 
 	for (auto &f : scene.fList) {
