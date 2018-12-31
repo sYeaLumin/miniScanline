@@ -4,7 +4,7 @@ void SL::Scanline::setSize(int w, int h)
 {
 	windowHeight = h;
 	windowWeight = w;
-	//viewport = glm::vec4(0.0f, 0.0f, w, h);
+	viewport = glm::vec4(0.0f, 0.0f, w, h);
 }
 
 void SL::Scanline::getSize(int & w, int & h)
@@ -206,8 +206,8 @@ void SL::Scanline::calVPMat(const Scene & scene)
 {
 	float fov = glm::radians(45.0f);
 	float radius = glm::length(scene.maxCoord - scene.minCoord);
-	float zNear = 0.2 * radius / glm::sin(0.5*fov);
-	float zFar = 10 * (zNear + 2.0*radius);
+	zNear = 0.2 * radius / glm::sin(0.5*fov);
+	zFar = 10 * (zNear + 2.0*radius);
 	float dis = zNear + radius;
 	glm::vec3 center = (scene.maxCoord + scene.minCoord) / 2.0f;
 	glm::vec3 eye = center + glm::vec3(0.0f, 0.0f, 1.0f)*dis;
@@ -220,29 +220,17 @@ void SL::Scanline::calVPMat(const Scene & scene)
 void SL::Scanline::project(Scene & scene)
 {
 	modelMat = getRotateMat(glm::vec3(0.0f, 1.0f, 0.0f), 45);
-	glm::mat4 mvpMat = persMat*viewMat*modelMat;
-	glm::mat4 viewPort = glm::mat4(1.0f);
-	viewPort[0][0] = windowWeight / 2.0f;
-	viewPort[0][3] = windowWeight / 2.0f;
-	viewPort[1][1] = windowHeight / 2.0f;
-	viewPort[1][3] = windowHeight / 2.0f;
-	glm::vec4 p;
 	for (auto &v : scene.vList) {
-		p = mvpMat * glm::vec4(v.pOri, 1.0f);
-		p = p / p.w;
-		v.p = viewPort * p;
+		v.p = glm::project(v.pOri, modelMat, projMat, viewport);
+		v.p.z = v.p.z*(zFar - zNear) + zNear;
 	}
-	scene.fitWindow(windowWeight, windowHeight);
-	if (scene.ifFNIdx) {
-		for (auto &vn : scene.vnList) {
-			vn = glm::mat3(modelMat) * vn;
-		}
+
+	for (auto &f : scene.fList) {
+		glm::vec3 v01 = scene.vList[f.vIdx[1]].p - scene.vList[f.vIdx[0]].p;
+		glm::vec3 v12 = scene.vList[f.vIdx[2]].p - scene.vList[f.vIdx[1]].p;
+		f.normal = glm::normalize(glm::cross(v01, v12));
 	}
-	else {
-		for (auto &f : scene.fList) {
-			f.normal = glm::mat3(modelMat) * f.normal;
-		}
-	}
+	scene.ifFNIdx = false;
 }
 
 glm::mat4 SL::Scanline::getRotateMat(glm::vec3 axis, float angle)

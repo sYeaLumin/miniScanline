@@ -122,11 +122,13 @@ namespace SL {
 	private:
 		int windowHeight;
 		int windowWeight;
+		float zNear;
+		float zFar;
 		glm::mat4 modelMat;
 		glm::mat4 viewMat;
 		glm::mat4 persMat;
 		glm::mat4 projMat;
-		//glm::vec4 viewport;
+		glm::vec4 viewport;
 		vector<Polygon>		PT;		// polygon table
 		vector<list<Edge>>	ET;		// edge table
 		list<ActiveEdge>			AET;	// active edge table
