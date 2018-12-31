@@ -14,7 +14,6 @@ int main()
 	string  fileName = "obj//bunny.obj";
 	Scene scene;
 	scene.Load(fileName);
-	//scene.fitWindow(width, height);
 	Render::shader(scene);
 
 	Scanline scanline;
