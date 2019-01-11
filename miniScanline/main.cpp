@@ -5,18 +5,25 @@
 #include <ctime>
 using namespace std;
 using namespace SL;
-string  fileName = "obj//bunny.obj";
+string  fileName;
 void help() {
-
+	cout << "Help:" << endl;
+	cout << "  cmd : miniScanline.exe [objFile]" << endl;
+	cout << "  e.g. > miniScanline.exe obj/teapot.obj" << endl;
+	cout << endl;
 }
 int main(int argc, char* argv[])
 {
 	if (argc == 2) {
 		fileName = argv[1];
 	}
-	else if (argc > 2) {
-
+	else if (argc == 1)
+		fileName = "obj//bunny.obj";
+	else {
+		help();
+		return 0;
 	}
+
 	// 窗口大小
 	int width = 800, height = 600;	
 	// 读取模型

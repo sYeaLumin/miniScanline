@@ -216,18 +216,31 @@ void SL::Scanline::calVPMat(const Scene & scene)
 	zNear = 0.2 * radius / glm::sin(0.5*fov);
 	zFar = 10 * (zNear + 2.0*radius);
 	float dis = zNear + radius * 0.8;
+
 	glm::vec3 center = (scene.maxCoord + scene.minCoord) / 2.0f;
 	glm::vec3 eye = center + glm::vec3(0.0f, 0.0f, 1.0f)*dis;
 	viewMat = glm::lookAt(eye, center, glm::vec3(0.0f, 1.0f, 0.0f));
-	persMat = glm::perspective(fov,
+
+	perspMat = glm::perspective(fov,
 		(float)windowWeight / (float)windowHeight, zNear, zFar);
-	projMat = persMat*viewMat;
+	projMatP = perspMat*viewMat;
+	
+	float h = radius * 0.5;
+	float w = h * (float)windowWeight / (float)windowHeight;
+	orthoMat = glm::ortho(-w, w, -h, h, zNear, zFar);
+	projMatO = orthoMat*viewMat;
 }
 
 void SL::Scanline::project(Scene & scene)
 {
+	glm::mat4 currProjMat;
+	if (ifPerspective)
+		currProjMat = projMatP;
+	else
+		currProjMat = projMatO;
+
 	for (auto &v : scene.vList) {
-		v.p = glm::project(v.pOri, modelMat, projMat, viewport);
+		v.p = glm::project(v.pOri, modelMat, currProjMat, viewport);
 		v.p.z = -v.p.z*(zFar - zNear) - zNear;
 	}
 

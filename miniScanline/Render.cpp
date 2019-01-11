@@ -81,14 +81,20 @@ void Render::loop()
 	glRasterPos2f(10.0f, height - 60.0f);
 	drawString("KEY 'left' & 'right'  rotate around axis y\n");
 	glRasterPos2f(10.0f, height - 80.0f);
-	drawString("Use mouse :\n");
+	drawString("KEY 'f1'  change the projection\n");
+
 	glRasterPos2f(10.0f, height - 100.0f);
+	drawString("Use mouse :\n");
+	glRasterPos2f(10.0f, height - 120.0f);
 	drawString("use left mouse button to rotate\n");
 
 	char str[30];
 	sprintf_s(str, "Cost time : %.3f seconds\n", costTime);
-	glRasterPos2f(10.0f, height - 140.0f);
+	glRasterPos2f(10.0f, height - 160.0f);
 	drawString(str);
+	glRasterPos2f(10.0f, height - 180.0f);
+	drawString((engine->ifPerspective ? 
+		"Projection : perspective\n" : "Projection : ortho\n"));
 
 	glFinish();
 }
@@ -137,11 +143,14 @@ void Render::keyboard(int key, int x, int y)
 	case GLUT_KEY_DOWN:
 		engine->rotate(*scene, glm::vec3(1.0f, 0.0f, 0.0f), 10);
 		break;
+	case GLUT_KEY_F1:
+		engine->ifPerspective = !engine->ifPerspective;
+		engine->initProj(*scene);
+		break;
 	default:
 		break;
 	}
 	engine->ifNeedUpdate = true;
-	//engine->render(*scene);
 	glutPostRedisplay();
 }
 
@@ -190,7 +199,6 @@ void Render::MotionFunc(int x, int y)
 		engine->trackBall(*scene, lastBallPos, currBallPos);
 		lastBallPos = currBallPos;
 		engine->ifNeedUpdate = true;
-		//engine->render(*scene);
 		glutPostRedisplay();
 	}
 }
@@ -214,13 +222,13 @@ void Render::trackBallPos(int x, int y, glm::vec3 & p)
 
 void Render::drawString(const char * str)
 {
-	static int isFirstCall = 1;
+	static bool isFirstCall = true;
 	static GLuint lists;
 
 	if (isFirstCall) { 
 		// 如果是第一次调用，执行初始化
 		// 为每一个ASCII字符产生一个显示列表
-		isFirstCall = 0;
+		isFirstCall = false;
 		// 申请MAX_CHAR个连续的显示列表编号
 		lists = glGenLists(MAX_CHAR);
 		// 把每个字符的绘制命令都装到对应的显示列表中

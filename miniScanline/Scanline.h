@@ -115,7 +115,7 @@ namespace SL {
 		void traceAET(Index id);
 
 	public:
-		//Mat frame;
+		bool ifPerspective = false;
 		bool ifNeedUpdate = true;
 		vector<glm::vec3> buffer;
 		vector<Index> idBuffer; // for debug
@@ -126,8 +126,10 @@ namespace SL {
 		float zFar;
 		glm::mat4 modelMat = glm::mat4(1.0f);
 		glm::mat4 viewMat;
-		glm::mat4 persMat;
-		glm::mat4 projMat;
+		glm::mat4 perspMat;
+		glm::mat4 orthoMat;
+		glm::mat4 projMatP;
+		glm::mat4 projMatO;
 		glm::vec4 viewport;
 		vector<Polygon>		PT;		// polygon table
 		vector<list<Edge>>	ET;		// edge table
