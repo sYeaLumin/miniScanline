@@ -22,9 +22,8 @@ public:
 	static glm::vec3 currBallPos;
 
 	// 生成模型的颜色
-	//const float kd = 0.8;//albedo ,散射反照率
 	static void shader(Scene& model);
-	
+	// render
 	static void loop();
 	static void reshape(int w, int h);
 	static void keyboard(int key, int x, int y);
