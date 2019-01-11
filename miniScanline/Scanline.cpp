@@ -205,7 +205,8 @@ void SL::Scanline::updateAET(Index y)
 		return;
 	// Ìí¼ÓÐÂµÄ±ß
 	for (const auto &e : ET[y])
-		if (fabs(PT[e.id].c) > EPS)
+		// if (fabs(PT[e.id].c) > EPS)
+		if (PT[e.id].c > EPS) // back culling
 			AET.push_back(ActiveEdge(y, e, PT[e.id]));
 }
 
