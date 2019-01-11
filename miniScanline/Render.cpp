@@ -4,15 +4,14 @@ using namespace std;
 
 Scanline* Render::engine = NULL;
 Scene* Render::scene = NULL;
-float Render::rotateAngle = 0;
+bool Render::isLeftDown = false;
+glm::vec3 Render::lastBallPos = glm::vec3();
+glm::vec3 Render::currBallPos = glm::vec3();
 
 Render::Render(Scene* scene, Scanline* slzBuffer)
 {
 	this->scene = scene;
 	engine = slzBuffer;
-	// 确定各点的颜色
-	//shader(*scene);
-
 }
 
 Render::~Render()
@@ -101,37 +100,37 @@ void Render::reshape(int w, int h)
 void Render::display()
 {
 	string name = "ScanLineZBuffer";
-	int width = 0, height = 0;
-	engine->getSize(width, height);
+	int weight = 0, height = 0;
+	engine->getSize(weight, height);
 
 	glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB);
-	glutInitWindowSize(width, height);
+	glutInitWindowSize(weight, height);
 	glutInitWindowPosition(50, 80);
 	glutCreateWindow(name.c_str());
 	glutDisplayFunc(loop);
 	glutReshapeFunc(reshape);
 	glutSpecialFunc(keyboard);
 	glutMouseFunc(mouse);
-	//glutMotionFunc
+	glutMotionFunc(MotionFunc);
 
 	glutMainLoop();
 }
 
 void Render::keyboard(int key, int x, int y)
 {
-	int width = 0, height = 0;
-	engine->getSize(width, height);
 	switch (key)
 	{
 	case GLUT_KEY_LEFT:
-		rotateAngle -= 10;
-		engine->rotate2(*scene, glm::vec3(0.0f, 1.0f, 0.0f), rotateAngle);
-		cout << "rotateAngle: " << rotateAngle << endl;
+		engine->rotate(*scene, glm::vec3(0.0f, 1.0f, 0.0f), -10);
 		break;
 	case GLUT_KEY_RIGHT:
-		rotateAngle += 10;
-		engine->rotate2(*scene, glm::vec3(0.0f, 1.0f, 0.0f), rotateAngle);
-		cout << "rotateAngle: " << rotateAngle << endl;
+		engine->rotate(*scene, glm::vec3(0.0f, 1.0f, 0.0f), 10);
+		break;
+	case GLUT_KEY_UP:
+		engine->rotate(*scene, glm::vec3(1.0f, 0.0f, 0.0f), -10);
+		break;
+	case GLUT_KEY_DOWN:
+		engine->rotate(*scene, glm::vec3(1.0f, 0.0f, 0.0f), 10);
 		break;
 	default:
 		break;
@@ -143,38 +142,74 @@ void Render::keyboard(int key, int x, int y)
 
 void Render::mouse(int button, int state, int x, int y)
 {
-	int width = 0, height = 0;
-	engine->getSize(width, height);
+	int weight = 0, height = 0;
+	engine->getSize(weight, height);
 	size_t id;
 	if (button == GLUT_RIGHT_BUTTON) {
 		switch (state) {
 		case GLUT_DOWN:
+#ifdef MINISCANLINE_DEBUG
 			cout << "x:" << x << " y:" << (height - y);
-			id = engine->idBuffer[(height - y)*width + x];
+			id = engine->idBuffer[(height - y)*weight + x];
 			cout << " ID:" << id;
 			for (const auto &vi : scene->fList[id].vIdx) {
 				cout << " " << vi;
-			}/**/
+			}
 			cout << endl;
+#endif // MINISCANLINE_DEBUG
 			break;
 		case GLUT_UP:
 			break;
 		}
 	}
-	else if (button == GLUT_RIGHT_BUTTON) {
+	else if (button == GLUT_LEFT_BUTTON) {
 		switch (state) {
 		case GLUT_DOWN:
-			cout << "x:" << x << " y:" << (height - y);
-			id = engine->idBuffer[(height - y)*width + x];
-			cout << " ID:" << id;
-			for (const auto &vi : scene->fList[id].vIdx) {
-				cout << " " << vi;
-			}/**/
-			cout << endl;
+			isLeftDown = true;
+			trackBallPos(x, y, lastBallPos);
 			break;
 		case GLUT_UP:
+			isLeftDown = false;
+			lastBallPos = glm::vec3();
+			currBallPos = glm::vec3();
 			break;
 		}
 	}
 }
+
+void Render::MotionFunc(int x, int y)
+{
+	if (isLeftDown)
+	{
+		trackBallPos(x, y, currBallPos);
+		engine->trackBall(*scene, lastBallPos, currBallPos);
+		lastBallPos = currBallPos;
+		engine->ifNeedUpdate = true;
+		engine->render(*scene);
+		glutPostRedisplay();
+	}
+}
+
+void Render::trackBallPos(int x, int y, glm::vec3 & p)
+{
+	int weight = 0, height = 0;
+	engine->getSize(weight, height);
+	float nccX = (2.0f*x - weight) / weight;
+	float nccY = (height - 2.0f*y) / height;
+	p[0] = nccX;
+	p[1] = nccY;
+	p[2] = 0.0f;
+
+	float sqrZ = 1 - glm::dot(p, p);
+	if (sqrZ > 0)
+		p[2] = sqrt(sqrZ);
+	else
+		p = glm::normalize(p);
+}
+
+void MouseWheelFunc(int button, int dir, int x, int y)
+{
+	glutPostRedisplay();
+}
+
 

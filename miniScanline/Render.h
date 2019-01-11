@@ -17,7 +17,9 @@ public:
 
 	static Scene* scene;
 	static Scanline* engine;
-	static float rotateAngle;
+	static bool isLeftDown;
+	static glm::vec3 lastBallPos;
+	static glm::vec3 currBallPos;
 
 	// 生成模型的颜色
 	//const float kd = 0.8;//albedo ,散射反照率
@@ -27,6 +29,8 @@ public:
 	static void reshape(int w, int h);
 	static void keyboard(int key, int x, int y);
 	static void mouse(int button, int state, int x, int y);
+	static void MotionFunc(int x, int y);
+	static void trackBallPos(int x, int y, glm::vec3 & p);
 };
 
 

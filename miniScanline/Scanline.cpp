@@ -114,29 +114,25 @@ void SL::Scanline::render(const Scene & scene)
 
 void SL::Scanline::initProj(Scene & scene)
 {
+	modelMat = glm::mat4(1.0f);
 	calVPMat(scene);
 	project(scene);
 }
 
 void SL::Scanline::rotate(Scene & scene, glm::vec3 axis, float angle)
 {
-	modelMat = getRotateMat(axis, angle);
-	for (auto &v : scene.vList) {
-		v.p = modelMat * glm::vec4(v.pOri, 1.0f);
-	}
-	scene.fitWindow(windowWeight, windowHeight);
-	for (auto &f : scene.fList) {
-		glm::vec3 v01 = scene.vList[f.vIdx[1]].p - scene.vList[f.vIdx[0]].p;
-		glm::vec3 v12 = scene.vList[f.vIdx[2]].p - scene.vList[f.vIdx[1]].p;
-		f.normal = glm::normalize(glm::cross(v01, v12));
-	}
-	scene.ifFNIdx = false;
+	modelMat = getRotateMat(axis, angle) * modelMat;
+	project(scene);
 }
 
-void SL::Scanline::rotate2(Scene & scene, glm::vec3 axis, float angle)
+void SL::Scanline::trackBall(Scene & scene, glm::vec3 & lastP, glm::vec3 & currP)
 {
-	modelMat = getRotateMat(axis, angle);
-	project(scene);
+	glm::vec3 axis = glm::cross(lastP, currP);
+	float angle = 90 * glm::l2Norm(axis);
+	if (angle > 0) {
+		modelMat = getRotateMat(axis, angle)*modelMat;
+		project(scene);
+	}
 }
 
 void SL::Scanline::initTable(const Scene & scene)
@@ -225,7 +221,6 @@ void SL::Scanline::calVPMat(const Scene & scene)
 
 void SL::Scanline::project(Scene & scene)
 {
-	//modelMat = getRotateMat(glm::vec3(0.0f, 1.0f, 0.0f), 45);
 	for (auto &v : scene.vList) {
 		v.p = glm::project(v.pOri, modelMat, projMat, viewport);
 		v.p.z = -v.p.z*(zFar - zNear) - zNear;

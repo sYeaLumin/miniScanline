@@ -7,9 +7,8 @@
 #include <glm.hpp>
 #include <gtc/matrix_transform.hpp>
 #include "Scene.h"
-#define MINISCANLINE_DEBUG//
+//#define MINISCANLINE_DEBUG
 using namespace std;
-//using namespace cv;
 
 namespace SL {
 	const float EPS = 10e-6;
@@ -100,7 +99,7 @@ namespace SL {
 		void render(const Scene& scene);
 		void initProj(Scene& scene);
 		void rotate(Scene& scene, glm::vec3 axis, float angle);
-		void rotate2(Scene& scene, glm::vec3 axis, float angle);
+		void trackBall(Scene & scene, glm::vec3& lastP, glm::vec3& currP);
 	private:
 		void initTable(const Scene& scene);
 		void updateAET(Index y);
