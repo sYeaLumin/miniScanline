@@ -1,12 +1,13 @@
-#ifndef __DISPLAY_H
-#define __DISPLAY_H
-
+#pragma once
 #include <iostream>
 #include <iostream>
 #include <cmath>
+#include <time.h>
+#include <Windows.h>
 #include "glut.h"
 #include "Scene.h"
 #include "Scanline.h"
+#define MAX_CHAR        128
 using namespace SL;
 class Render
 {
@@ -20,6 +21,7 @@ public:
 	static bool isLeftDown;
 	static glm::vec3 lastBallPos;
 	static glm::vec3 currBallPos;
+	static double costTime;
 
 	// 生成模型的颜色
 	static void shader(Scene& model);
@@ -30,7 +32,5 @@ public:
 	static void mouse(int button, int state, int x, int y);
 	static void MotionFunc(int x, int y);
 	static void trackBallPos(int x, int y, glm::vec3 & p);
+	static void drawString(const char* str);
 };
-
-
-#endif

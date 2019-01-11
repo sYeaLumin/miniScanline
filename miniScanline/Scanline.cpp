@@ -13,9 +13,10 @@ void SL::Scanline::getSize(int & w, int & h)
 	w = windowWeight;
 }
 
-void SL::Scanline::render(const Scene & scene)
+double SL::Scanline::render(const Scene & scene)
 {
-	if (!ifNeedUpdate)return;
+	clock_t t1 = clock();
+	if (!ifNeedUpdate)return 0.0;
 	//Mat currFrame = Mat::zeros(windowHeight, windowWeight, CV_8UC3);
 #ifdef MINISCANLINE_DEBUG
 	vector<Index> currIDBuffer;
@@ -110,11 +111,15 @@ void SL::Scanline::render(const Scene & scene)
 	AET.clear();
 
 	ifNeedUpdate = false;
+
+	clock_t t2 = clock();
+
+	return (double)(t2 - t1) / CLOCKS_PER_SEC;
 }
 
 void SL::Scanline::initProj(Scene & scene)
 {
-	modelMat = glm::mat4(1.0f);
+	//modelMat = glm::mat4(1.0f);
 	calVPMat(scene);
 	project(scene);
 }
@@ -210,7 +215,7 @@ void SL::Scanline::calVPMat(const Scene & scene)
 	float radius = glm::length(scene.maxCoord - scene.minCoord);
 	zNear = 0.2 * radius / glm::sin(0.5*fov);
 	zFar = 10 * (zNear + 2.0*radius);
-	float dis = zNear + radius;
+	float dis = zNear + radius * 0.8;
 	glm::vec3 center = (scene.maxCoord + scene.minCoord) / 2.0f;
 	glm::vec3 eye = center + glm::vec3(0.0f, 0.0f, 1.0f)*dis;
 	viewMat = glm::lookAt(eye, center, glm::vec3(0.0f, 1.0f, 0.0f));

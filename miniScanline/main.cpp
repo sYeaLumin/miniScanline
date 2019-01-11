@@ -5,7 +5,7 @@
 #include <ctime>
 using namespace std;
 using namespace SL;
-string  fileName = "obj//teapot1.obj";
+string  fileName = "obj//bunny.obj";
 void help() {
 
 }

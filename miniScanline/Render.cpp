@@ -6,6 +6,7 @@ Scene* Render::scene = NULL;
 bool Render::isLeftDown = false;
 glm::vec3 Render::lastBallPos = glm::vec3();
 glm::vec3 Render::currBallPos = glm::vec3();
+double Render::costTime = 0;
 
 Render::Render(Scene* scene, Scanline* slzBuffer)
 {
@@ -55,7 +56,7 @@ void Render::loop()
 	glLoadIdentity();
 	gluOrtho2D(0, width, 0, height);
 
-	engine->render(*scene);
+	costTime = engine->render(*scene);
 
 	glBegin(GL_POINTS);
 
@@ -70,6 +71,24 @@ void Render::loop()
 		}
 	}
 	glEnd();
+
+	// 文字
+	glColor3f(1.0f, 0.0f, 0.0f);
+	glRasterPos2f(10.0f, height - 20.0f);
+	drawString("Use keyboard :\n");
+	glRasterPos2f(10.0f, height - 40.0f);
+	drawString("KEY 'up' & 'down'  rotate around axis x\n");
+	glRasterPos2f(10.0f, height - 60.0f);
+	drawString("KEY 'left' & 'right'  rotate around axis y\n");
+	glRasterPos2f(10.0f, height - 80.0f);
+	drawString("Use mouse :\n");
+	glRasterPos2f(10.0f, height - 100.0f);
+	drawString("use left mouse button to rotate\n");
+
+	char str[30];
+	sprintf_s(str, "Cost time : %.3f seconds\n", costTime);
+	glRasterPos2f(10.0f, height - 140.0f);
+	drawString(str);
 
 	glFinish();
 }
@@ -122,7 +141,7 @@ void Render::keyboard(int key, int x, int y)
 		break;
 	}
 	engine->ifNeedUpdate = true;
-	engine->render(*scene);
+	//engine->render(*scene);
 	glutPostRedisplay();
 }
 
@@ -171,7 +190,7 @@ void Render::MotionFunc(int x, int y)
 		engine->trackBall(*scene, lastBallPos, currBallPos);
 		lastBallPos = currBallPos;
 		engine->ifNeedUpdate = true;
-		engine->render(*scene);
+		//engine->render(*scene);
 		glutPostRedisplay();
 	}
 }
@@ -193,9 +212,23 @@ void Render::trackBallPos(int x, int y, glm::vec3 & p)
 		p = glm::normalize(p);
 }
 
-void MouseWheelFunc(int button, int dir, int x, int y)
+void Render::drawString(const char * str)
 {
-	glutPostRedisplay();
+	static int isFirstCall = 1;
+	static GLuint lists;
+
+	if (isFirstCall) { 
+		// 如果是第一次调用，执行初始化
+		// 为每一个ASCII字符产生一个显示列表
+		isFirstCall = 0;
+		// 申请MAX_CHAR个连续的显示列表编号
+		lists = glGenLists(MAX_CHAR);
+		// 把每个字符的绘制命令都装到对应的显示列表中
+		wglUseFontBitmaps(wglGetCurrentDC(), 0, MAX_CHAR, lists);
+	}
+	// 调用每个字符对应的显示列表，绘制每个字符
+	for (; *str != '\n'; ++str)
+		glCallList(lists + *str);
 }
 
 

@@ -2,7 +2,7 @@
 #include <vector>
 #include <list>
 #include <algorithm>
-//#include <opencv2/opencv.hpp>
+#include <time.h>
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm.hpp>
 #include <gtc/matrix_transform.hpp>
@@ -96,7 +96,7 @@ namespace SL {
 		~Scanline() {}
 		void setSize(int w, int h);
 		void getSize(int& w, int& h);
-		void render(const Scene& scene);
+		double render(const Scene& scene);
 		void initProj(Scene& scene);
 		void rotate(Scene& scene, glm::vec3 axis, float angle);
 		void trackBall(Scene & scene, glm::vec3& lastP, glm::vec3& currP);
