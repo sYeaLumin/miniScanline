@@ -17,10 +17,10 @@ namespace SL {
 
 	class Edge {
 	public:
-		float x;
-		float dx;
-		LineNum	dy;
-		Index			id;
+		float x;							// 边上端点的x坐标
+		float dx;							// 相邻两条扫描线交点的x坐标差
+		LineNum	dy;				// 边跨越的扫描线数目
+		Index			id;				// 边所属的多边形编号
 	public:
 		Edge(Index _id, glm::vec3 v1, glm::vec3 v2) :
 			id(_id) {
@@ -32,10 +32,10 @@ namespace SL {
 
 	class Polygon {
 	public:
-		float a, b, c, d;
-		LineNum	dy;
-		Index			id;
-		bool inFlag = false;
+		float a, b, c, d;				// 多边形所在平面的方程系数
+		LineNum	dy;				// 多边形跨越的剩余扫描线数目
+		Index			id;				// 多边形的编号
+		bool inFlag = false;		// 是否进入多边形
 	public:
 		Polygon(Index _id, LineNum _num, glm::vec3 _p, glm::vec3 _n) :
 			dy(_num), id(_id) {
@@ -56,13 +56,13 @@ namespace SL {
 
 	class ActiveEdge {
 	public:
-		float x;
-		float dx;
-		float z;
-		float zdx;
-		float zdy;
-		LineNum	dy;
-		Index			id;
+		float x;							// 与扫描线相交的x坐标
+		float dx;							// 相邻两条扫描线交点的x坐标差
+		float z;							//  与扫描线相交的z坐标
+		float zdx;						//  沿扫描线向右1个像素的深度增量
+		float zdy;						//  下移1条扫描线的深度增量
+		LineNum	dy;				// 边跨越的剩余扫描线数目
+		Index			id;				// 边所属的多边形编号
 	public:
 		ActiveEdge(Index y, const Edge & e, const Polygon & ap) :
 			x(e.x), dx(e.dx), dy(e.dy), id(e.id) {
@@ -131,10 +131,10 @@ namespace SL {
 		glm::mat4 projMatP;
 		glm::mat4 projMatO;
 		glm::vec4 viewport;
-		vector<Polygon>		PT;		// polygon table
-		vector<list<Edge>>	ET;		// edge table
-		list<ActiveEdge>			AET;	// active edge table
-		list<Index>					IPL;		// active In-Polygon List
+		vector<Polygon>		PT;		// 多边形表
+		vector<list<Edge>>	ET;		// 边表
+		list<ActiveEdge>			AET;	// 活化边形表 active edge table
+		list<Index>					IPL;		// 活化多边形表 active In-Polygon List
 	};
 
 }

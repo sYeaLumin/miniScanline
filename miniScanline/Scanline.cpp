@@ -17,7 +17,7 @@ double SL::Scanline::render(const Scene & scene)
 {
 	clock_t t1 = clock();
 	if (!ifNeedUpdate)return 0.0;
-	//Mat currFrame = Mat::zeros(windowHeight, windowWeight, CV_8UC3);
+
 #ifdef MINISCANLINE_DEBUG
 	vector<Index> currIDBuffer;
 	currIDBuffer.resize(windowHeight*windowWeight);
@@ -28,7 +28,7 @@ double SL::Scanline::render(const Scene & scene)
 	initTable(scene);
 
 	for (int y = windowHeight - 1; y >= 0; y--) {
-		//cout << "y:" << y;
+
 		// 清空IPL
 		list<Index>().swap(IPL);
 		// 更新活化边表
@@ -44,7 +44,6 @@ double SL::Scanline::render(const Scene & scene)
 		// 活化边表排序
 		AET.sort();
 		
-		//Mat currFrameRow = currFrame.row(y);
 		list<ActiveEdge>::iterator ae;
 		list<ActiveEdge>::iterator ae2;
 		for (ae = AET.begin(); ae != AET.end(); ++ae) {
@@ -73,7 +72,6 @@ double SL::Scanline::render(const Scene & scene)
 			int polygonID = -1;
 			float midX = (ae->x + ae2->x) / 2;
 			// 世界坐标系是右手坐标系，NDC坐标系是左手坐标系
-			//float minZ = FLT_MAX; 
 			float maxZ = -FLT_MAX;
 			float curZ;
 			if (IPL.size() == 0)
@@ -119,7 +117,6 @@ double SL::Scanline::render(const Scene & scene)
 
 void SL::Scanline::initProj(Scene & scene)
 {
-	//modelMat = glm::mat4(1.0f);
 	calVPMat(scene);
 	project(scene);
 }
@@ -186,13 +183,15 @@ void SL::Scanline::initTable(const Scene & scene)
 
 void SL::Scanline::updateAET(Index y)
 {
-	// 删除已经扫描完的边
+	// 更新已在活化边表中的活化边
 	if (AET.size() > 0) {
 		list<ActiveEdge>::iterator aeIter;
 		for (aeIter = AET.begin(); aeIter != AET.end();) {
+			// 如果活化边跨越的剩余扫描线数目小于等于1，删除
 			if (aeIter->dy <= 1) {
 				aeIter = AET.erase(aeIter);
 			}
+			// 否则更新活化边的x,z,dy值
 			else {
 				aeIter->x += aeIter->dx;
 				aeIter->z += aeIter->zdx*aeIter->dx + aeIter->zdy;
@@ -205,7 +204,7 @@ void SL::Scanline::updateAET(Index y)
 		return;
 	// 添加新的边
 	for (const auto &e : ET[y])
-		// if (fabs(PT[e.id].c) > EPS)
+		// if (fabs(PT[e.id].c) > EPS)  // no back culling
 		if (PT[e.id].c > EPS) // back culling
 			AET.push_back(ActiveEdge(y, e, PT[e.id]));
 }
@@ -218,14 +217,17 @@ void SL::Scanline::calVPMat(const Scene & scene)
 	zFar = 10 * (zNear + 2.0*radius);
 	float dis = zNear + radius * 0.8;
 
+	// 视变换矩阵
 	glm::vec3 center = (scene.maxCoord + scene.minCoord) / 2.0f;
 	glm::vec3 eye = center + glm::vec3(0.0f, 0.0f, 1.0f)*dis;
 	viewMat = glm::lookAt(eye, center, glm::vec3(0.0f, 1.0f, 0.0f));
 
+	// 透视投影矩阵
 	perspMat = glm::perspective(fov,
 		(float)windowWeight / (float)windowHeight, zNear, zFar);
 	projMatP = perspMat*viewMat;
-	
+
+	// 正交投影矩阵
 	float h = radius * 0.5;
 	float w = h * (float)windowWeight / (float)windowHeight;
 	orthoMat = glm::ortho(-w, w, -h, h, zNear, zFar);
@@ -240,11 +242,12 @@ void SL::Scanline::project(Scene & scene)
 	else
 		currProjMat = projMatO;
 
+	// 顶点投影
 	for (auto &v : scene.vList) {
 		v.p = glm::project(v.pOri, modelMat, currProjMat, viewport);
-		v.p.z = -v.p.z*(zFar - zNear) - zNear;
+		v.p.z = -v.p.z*(zFar - zNear) - zNear; // 左右手坐标系变换
 	}
-
+	// 根据顶点新坐标重新计算法线
 	for (auto &f : scene.fList) {
 		glm::vec3 v01 = scene.vList[f.vIdx[1]].p - scene.vList[f.vIdx[0]].p;
 		glm::vec3 v12 = scene.vList[f.vIdx[2]].p - scene.vList[f.vIdx[1]].p;

@@ -17,8 +17,6 @@ int main(int argc, char* argv[])
 	if (argc == 2) {
 		fileName = argv[1];
 	}
-	else if (argc == 1)
-		fileName = "obj//bunny.obj";
 	else {
 		help();
 		return 0;

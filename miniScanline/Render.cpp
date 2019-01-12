@@ -36,12 +36,9 @@ void Render::shader(Scene& scene) {
 		}
 		f.color /= f.vIdx.size();
 
-		if (f.color.r > 1.0f)  f.color.r = 1.0f;
-		if (f.color.r < 0.0f)  f.color.r = 0.0f;
-		if (f.color.g > 1.0f) f.color.g = 1.0f;
-		if (f.color.g < 0.0f) f.color.g = 0.0f;
-		if (f.color.b > 1.0f) f.color.b = 1.0f;
-		if (f.color.b < 0.0f) f.color.b = 0.0f;
+		f.color.r = min(1.0f, max(0.0f, f.color.r));
+		f.color.g = min(1.0f, max(0.0f, f.color.g));
+		f.color.b = min(1.0f, max(0.0f, f.color.b));
 	}
 }
 
@@ -95,6 +92,11 @@ void Render::loop()
 	glRasterPos2f(10.0f, height - 180.0f);
 	drawString((engine->ifPerspective ? 
 		"Projection : perspective\n" : "Projection : ortho\n"));
+	string faceNum = "Face number : ";
+	faceNum += to_string(scene->fList.size());
+	faceNum += "\n";
+	glRasterPos2f(10.0f, height - 200.0f);
+	drawString(faceNum.c_str());
 
 	glFinish();
 }
@@ -209,9 +211,7 @@ void Render::trackBallPos(int x, int y, glm::vec3 & p)
 	engine->getSize(weight, height);
 	float nccX = (2.0f*x - weight) / weight;
 	float nccY = (height - 2.0f*y) / height;
-	p[0] = nccX;
-	p[1] = nccY;
-	p[2] = 0.0f;
+	p[0] = nccX; p[1] = nccY; p[2] = 0.0f;
 
 	float sqrZ = 1 - glm::dot(p, p);
 	if (sqrZ > 0)
